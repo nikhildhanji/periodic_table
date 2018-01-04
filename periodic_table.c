@@ -27,7 +27,9 @@ typedef struct Element/*__attribute__((packed))*/
 	char symbol[2+1];
 	char name[20+1];
 	char atomic_mass[10+1];
+	
 	const char* categories[2];
+	
 	struct Element* next;
 }element;
 
@@ -49,7 +51,7 @@ typedef struct
 }search_request;
 /*function proto types*/
 /*void load_elements_by_file(element*,const char*);*/
-
+void info();
 void capitalize (char*);
 void display (element*);
 void search(element*, search_request*, search_result*);
@@ -144,7 +146,7 @@ int main(int argc, char* argv[])
 		{83,"Bi","Bismuth","208.9804",{categories[5],NULL}},
 		{84,"Po","Polonium","209",{categories[6],NULL}},
 		{85,"At","Astatine","210",{categories[8],NULL}},
-		{86,"Rn","Radon","{222",{categories[9],NULL}},
+		{86,"Rn","Radon","222",{categories[9],NULL}},
 		{87,"Fr","Francium","223",{categories[0],NULL}},//Group 1
 		{88,"Ra","Radium","226",{categories[1],NULL}},//Group 2
 		{89,"Ac","Actinium","227",{categories[3],categories[4]}},
@@ -188,11 +190,13 @@ int main(int argc, char* argv[])
 	element_ptr=(element*)malloc(NUMBER_OF_ELEMENTS* sizeof(element));
 	load_elements_by_file(element_ptr, "./elements.txt");
 	*/
-	search_result result = {NULL};
+	search_result result;
 	
 	search_request request;
+	info();
+	
 	do{
-		printf("Please enter your search criterion?\n(A = Atomic Number, S = Symbol, N = Name, C = Category, D = Display): ");
+		printf("\nPlease enter your search criterion?\n(A = Atomic Number, S = Symbol, N = Name, C = Category, D = Display): ");
 		scanf(" %c",&search_by);
 		search_by=toupper(search_by);
 		request.search_by = search_by;
@@ -200,19 +204,23 @@ int main(int argc, char* argv[])
 		switch(search_by)
 		{
 			case 'A':
+				
 				printf("Enter the atomic_number of the element you are interested in (1 - 118): ");
 				scanf("%d",&(request.criterion.atomic_number));
 				if(request.criterion.atomic_number<1 || request.criterion.atomic_number>NUMBER_OF_ELEMENTS)
 					continue;
+				
 				search(element_ptr, &request, &result);
 				break;
 			case 'S':
+				
 				printf("Enter the symbol of the element you are interested in ( e.g. H or Li ): ");
 				scanf("%s",request.criterion.symbol);
 				capitalize(request.criterion.symbol);
 				search(element_ptr, &request, &result);
 				break;
 			case 'N':
+				
 				printf("Enter the name of the element you are interested in ( e.g. Hydrogen or Lithium ): ");
 				scanf("%s",request.criterion.name);
 				capitalize(request.criterion.name);
@@ -223,7 +231,7 @@ int main(int argc, char* argv[])
 				display(element_ptr);
 				break;
 			case 'C':
-				
+						
 				printf("\n");
 				for(i=0;i<10;i++)
 			    {
@@ -236,6 +244,7 @@ int main(int argc, char* argv[])
 					scanf("%d",&idx);
 				}
 				while (idx<1 || idx>10);
+				
 				request.criterion.category = categories[idx-1]; /*substracting 1 to get the appropriate index*/
 				search(element_ptr, &request, &result);
 				break;
@@ -262,6 +271,7 @@ int main(int argc, char* argv[])
 			temp=temp->next;
 		}
 		clear(element_ptr);
+		result.start=NULL;
 		printf("\nDo you wish to continue? ");
 		scanf(" %c",&choice);
 	}
@@ -270,7 +280,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 /*function defintion*/
-
+void info(){
+printf("  There are 118 different elements currently on the periodic table. Of the 118 elements that have\nbeen discovered, there are 90 elements (1 through 92 except for elements 43 and 61) that occur in\nnature in appreciable amounts. Elements are composed of atoms - atoms are comprised of protons\n(positively charged), neutrons (neutral) and electrons (negatively charged).\n\n  The atomic number or proton number of a chemical element is the number of protons found in the\nnucleus of an atom. It is identical to the charge number of the nucleus. The atomic number uniquely identifies a chemical element.\n\n  The atomic mass is the total number of protons and neutrons in the nucleus. It is the nucleus\nthat contributes to the mass of the atom. Each element has a unique symbol (an abbreviation).\nNatural elements have one or two letter chemical symbols; some manmade elements\nhave three-letter symbols.\n\n");
+}
 /*void load_elements_by_file(element* element_ptr, const char* file_name)
 {
 	FILE *file = NULL;
@@ -311,12 +323,19 @@ void capitalize (char* i){
 void display (element* element_ptr){
 	
 	int counter=0,counter_lanthanides=0, counter_actinides=0;
-	int a;
+	int a,period=0;
 	element* actinides[15];
 	element* lanthanides[15];
+	printf("\n ");
+	for (counter=1;counter<=18;counter++)
+	{
+		printf("%s%d ", (counter<10?"  ":" "),counter);
+	}
+	printf("\n\n");
 	for (counter=0;counter<NUMBER_OF_ELEMENTS;counter++,element_ptr++)
 	{
 		a=element_ptr->atomic_number;
+		
 		
 		if(a>=57&& a<=71)
 		{
@@ -334,14 +353,18 @@ void display (element* element_ptr){
 			counter_actinides++;
 			continue;
 		}
-		printf(" %s%s ", (strlen(element_ptr->symbol)==1?" ":"") , element_ptr->symbol);
-		
+		if(a==1 || a==3 || a==11 || a==19 || a==37 || a==55 || a==87){
+			period++;
+			printf("%d %s%s ", period,(strlen(element_ptr->symbol)==1?" ":"") , element_ptr->symbol);
+		}
+		else
+			printf(" %s%s ", (strlen(element_ptr->symbol)==1?" ":"") , element_ptr->symbol);
 		
 		if(a==1){
-			printf("\t\t\t\t\t\t\t\t    ");
+			printf("\t\t\t\t\t\t\t\t     ");
 		}
 		else if(a==4 || a==12){
-			printf("\t\t\t\t\t");
+			printf("\t\t\t\t\t ");
 		}
 		 
 		if (a==2 || a==10 || a==18 || a==36 || a==54 || a==86 || a==118)
@@ -355,7 +378,7 @@ void display (element* element_ptr){
 		a=lanthanides[counter_lanthanides]->atomic_number;
 		if (a==57)
 		{
-			printf("\t    ");
+			printf("\t     ");
 		}
 		printf(" %s%s ", (strlen(lanthanides[counter_lanthanides]->symbol)==1?" ":"") , lanthanides[counter_lanthanides]->symbol);
 		if (a==71)
@@ -369,7 +392,7 @@ void display (element* element_ptr){
 		a=actinides[counter_actinides]->atomic_number;
 		if (a==89)
 		{
-			printf("\t    ");
+			printf("\t     ");
 		}
 		printf(" %s%s ", (strlen(actinides[counter_actinides]->symbol)==1?" ":"") , actinides[counter_actinides]->symbol);
 		if (a==103)
@@ -384,7 +407,7 @@ void search(element* element_ptr, search_request* request_ptr, search_result* re
 {
 	int i=0, j=0;
 	element* temp=NULL;
-	/*printf("search.category=%s\n",request_ptr->criterion.category);*/
+	
 	for(i=0;i<NUMBER_OF_ELEMENTS;i++){		
 		switch(request_ptr->search_by)
 		{
